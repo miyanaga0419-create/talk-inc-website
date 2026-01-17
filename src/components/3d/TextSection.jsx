@@ -1,10 +1,52 @@
 import React, { useState, useRef } from 'react';
-import { Text, RoundedBox, useScroll } from '@react-three/drei';
+import { Text, RoundedBox, useScroll, useVideoTexture } from '@react-three/drei';
 import { useThree, useFrame } from '@react-three/fiber';
 import WebBrowser from './WebBrowser'; // Import
 
 const Section = ({ z, children }) => {
     return <group position={[0, 0, z]}>{children}</group>;
+};
+
+// --- 動画背景コンポーネント (全画面対応版) ---
+const MovieBackground = () => {
+    const { viewport } = useThree();
+
+    const texture = useVideoTexture("/movie.mp4", {
+        unsuspend: 'canplay',
+        muted: true,
+        loop: true,
+        start: true,
+        crossOrigin: "Anonymous"
+    });
+
+    // 画面いっぱいに表示するための計算
+    // Z=-5 に配置する場合、カメラ(Z=5)からの距離は10
+    // viewport.width/height は Z=0 (距離5) でのサイズなので、2倍すれば Z=-5 でピッタリになる
+    const scaleFactor = 2.0;
+
+    // さらにアスペクト比を維持して「隙間なく埋める(cover)」ための補正
+    // 動画のアスペクト比(16:9 = 1.77) と 画面のアスペクト比を比較
+    const screenAspect = viewport.width / viewport.height;
+    const videoAspect = 16 / 9;
+
+    let finalWidth, finalHeight;
+
+    if (screenAspect > videoAspect) {
+        // 画面の方が横長 → 横幅に合わせて縦をはみ出させる
+        finalWidth = viewport.width * scaleFactor;
+        finalHeight = finalWidth / videoAspect;
+    } else {
+        // 画面の方が縦長 → 縦幅に合わせて横をはみ出させる
+        finalHeight = viewport.height * scaleFactor;
+        finalWidth = finalHeight * videoAspect;
+    }
+
+    return (
+        <mesh position={[0, 0, -5]} scale={[finalWidth, finalHeight, 1]}>
+            <planeGeometry />
+            <meshBasicMaterial map={texture} toneMapped={false} fog={false} />
+        </mesh>
+    );
 };
 
 const NumberCounter = ({ target = 3500 }) => {
@@ -56,7 +98,6 @@ const NumberCounter = ({ target = 3500 }) => {
     );
 };
 
-// ★修正: ここでは「renderOrder」等の強制設定を削除し、propsで受け取る形に戻しました
 const ResponsiveText = ({ children, type = "body", align = "center", ...props }) => {
     const { viewport } = useThree();
     const isMobile = viewport.width < 5;
@@ -78,9 +119,7 @@ const ResponsiveText = ({ children, type = "body", align = "center", ...props })
             anchorX={align}
             anchorY="middle"
             color={currentStyle.color}
-            // 消失防止のためこれだけはデフォルトでONにしておきます
-            frustumCulled={false}
-            // 親から渡された設定（renderOrderなど）を展開
+            // props受け渡し
             {...props}
         >
             {children}
@@ -140,16 +179,16 @@ const TextSection = () => {
 
             {/* --- MOVIE SECTION --- */}
             <Section z={100}>
-                {/* ★修正: MOVIEセクションの文字だけに「最強設定」を適用 */}
+                {/* 1. 背景動画: 画面サイズに合わせて拡大・全画面表示 */}
+                <MovieBackground />
+
+                {/* 2. 文字: 手前(z=2)に配置 + 白文字 + カリング無効化 */}
                 <ResponsiveText
                     type="title"
                     position={[0, isMobile ? 1.5 : 1.5, 2]}
                     scale={2.5}
                     color="white"
-                    // ↓これらが「他より手前に描画する」ための設定です
-                    renderOrder={999}
-                    depthTest={false}
-                    depthWrite={false}
+                    frustumCulled={false}
                 >
                     MOVIE
                 </ResponsiveText>
@@ -158,9 +197,7 @@ const TextSection = () => {
                     type="subtitle"
                     position={[0, isMobile ? 0.0 : -0.5, 2]}
                     color="white"
-                    renderOrder={999}
-                    depthTest={false}
-                    depthWrite={false}
+                    frustumCulled={false}
                 >
                     視点を変える。心を動かす。
                 </ResponsiveText>
@@ -169,9 +206,7 @@ const TextSection = () => {
                     type="body"
                     position={[0, isMobile ? -1.5 : -2.0, 2]}
                     color="white"
-                    renderOrder={999}
-                    depthTest={false}
-                    depthWrite={false}
+                    frustumCulled={false}
                 >
                     ドローン空撮から企業PVまで。{"\n"}企画•撮影•編集をワンストップで。
                 </ResponsiveText>
