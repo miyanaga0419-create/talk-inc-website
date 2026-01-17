@@ -12,10 +12,11 @@ const MovieBackground = () => {
     const { viewport } = useThree();
 
     const texture = useVideoTexture("/movie.mp4", {
-        unsuspend: 'canplay',
+        // unsuspend行を削除しました
         muted: true,
         loop: true,
         start: true,
+        playsInline: true,
         crossOrigin: "Anonymous"
     });
 

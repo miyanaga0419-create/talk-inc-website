@@ -117,7 +117,7 @@ const ExperienceContent = ({ setAtBottom, setShowSim }) => {
   return (
     <>
       <BackgroundVideo url={videoUrl} visible={videoVisible} />
-      <Effects />
+      {/* <Effects /> */}
       <group ref={worldGroup}>
         <TunnelSystem />
         <TextSection />
