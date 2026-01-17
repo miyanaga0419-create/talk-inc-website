@@ -1,80 +1,48 @@
-import React, { useRef, useEffect } from 'react';
-import { useThree, useFrame } from '@react-three/fiber';
-import { useVideoTexture } from '@react-three/drei';
+import React, { useRef } from 'react';
+import { useAspect, useVideoTexture } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 const BackgroundVideo = ({ url, visible }) => {
-    const { camera, size } = useThree(); // Use camera and size (canvas size)
-
-    // Calculate aspect ratio of the screen/canvas
-    const viewportAspect = size.width / size.height;
-
-    // Fixed distance from camera
-    const distance = 10;
-
-    // Calculate visible height and width at that distance
-    // 2 * distance * tan(FOV/2)
-    // Degrees to radians: * Math.PI / 180
-    const fovRad = (camera.fov * Math.PI) / 180;
-    const heightAtDistance = 2 * Math.tan(fovRad / 2) * distance;
-    const widthAtDistance = heightAtDistance * viewportAspect;
-
+    // スマホ対応版設定
     const texture = useVideoTexture(url, {
-        unsuspend: 'canplay',
-        muted: true,
+        // unsuspend: 'canplay', // ← これは絶対に削除！(スマホで止まる原因)
+        muted: true,    // 自動再生に必須
         loop: true,
         start: true,
-        crossOrigin: "Anonymous"
+        playsInline: true, // iPhone対応に必須
+        crossOrigin: "Anonymous",
     });
 
+    // 画面サイズに合わせてアスペクト比を計算
+    const scale = useAspect(1920, 1080, 1);
     const meshRef = useRef();
-
-    // Calculate scaling to "cover" the computed plane dimensions
-    const videoAspect = texture.image ? texture.image.videoWidth / texture.image.videoHeight : 16 / 9;
-
-    // Base scale factors to match the frustum size
-    let scaleX, scaleY;
-
-    // Logic: Compare screen aspect vs video aspect
-    if (viewportAspect > videoAspect) {
-        // Screen is wider than video -> Match width, scale up height
-        scaleX = widthAtDistance;
-        scaleY = widthAtDistance / videoAspect;
-    } else {
-        // Screen is taller than video -> Match height, scale up width
-        scaleY = heightAtDistance;
-        scaleX = heightAtDistance * videoAspect;
-    }
-
-    // "Cinematic" multiplier: 1.2x to ensure bleed and immersive feel
-    scaleX *= 1.2;
-    scaleY *= 1.2;
 
     useFrame((state, delta) => {
         if (meshRef.current) {
-            // Smooth opacity transition
+            // フェードイン・アウトのアニメーション
+            const targetOpacity = visible ? 1 : 0;
             meshRef.current.material.opacity = THREE.MathUtils.lerp(
                 meshRef.current.material.opacity,
-                visible ? 1.0 : 0,
-                delta * 2
+                targetOpacity,
+                delta * 3
             );
 
-            // Follow camera, maintaining fixed distance
-            meshRef.current.position.z = state.camera.position.z - distance;
-            meshRef.current.position.x = state.camera.position.x;
-            meshRef.current.position.y = state.camera.position.y;
+            // 常にカメラの後ろをついてくるように配置
+            const { position } = state.camera;
+            meshRef.current.position.set(position.x, position.y, position.z - 10);
         }
     });
 
     return (
-        <mesh ref={meshRef} scale={[scaleX, scaleY, 1]}>
-            <planeGeometry args={[1, 1]} />
+        <mesh ref={meshRef} scale={scale}>
+            <planeGeometry />
             <meshBasicMaterial
                 map={texture}
-                transparent
-                opacity={0}
-                depthTest={false}
                 toneMapped={false}
+                transparent
+                opacity={0} // 初期値
+                depthTest={false} // トンネルより奥に表示
             />
         </mesh>
     );
