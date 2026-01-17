@@ -87,6 +87,7 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
 
             <AboutPanel isOpen={aboutOpen} onClose={() => setAboutOpen(false)} />
 
+            {/* Scroll Indicator */}
             <div
                 className="scroll-indicator"
                 style={{
@@ -114,7 +115,7 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
                     transition: 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
             >
-                {/* 閉じるボタン: デザインをCostSimulatorに統一 */}
+                {/* 閉じるボタン */}
                 <button
                     className="contact-close-btn"
                     onClick={handleCloseContact}
@@ -178,6 +179,53 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
             </div>
 
             <style>{`
+                /* --- Scroll Indicator Styles (修正版) --- */
+                .scroll-indicator {
+                    position: fixed;
+                    bottom: 40px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    z-index: 10;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    color: #1a1a1a;
+                    font-family: 'Montserrat', sans-serif;
+                }
+                .scroll-indicator span {
+                    font-size: 0.75rem;
+                    letter-spacing: 0.2em;
+                    margin-bottom: 12px;
+                    /* letter-spacingによる右側の余白を打ち消して視覚的にセンターにする */
+                    margin-right: -0.2em; 
+                    font-weight: 300;
+                    opacity: 0.8;
+                }
+                .scroll-indicator .line {
+                    width: 1px;
+                    height: 60px; /* 線を少し長く */
+                    background: rgba(0,0,0,0.1); /* 背景のガイドライン */
+                    position: relative;
+                    overflow: hidden;
+                }
+                .scroll-indicator .line::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: #1a1a1a;
+                    /* 上から下へ流れるアニメーション */
+                    animation: scroll-down 2.0s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+                }
+                @keyframes scroll-down {
+                    0% { transform: translateY(-100%); }
+                    100% { transform: translateY(100%); }
+                }
+
+                /* --- Contact Panel Styles --- */
                 .contact-panel {
                     position: fixed;
                     top: 0;
@@ -204,7 +252,7 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
                     width: 40px; 
                     height: 40px;
                     background: #f0f0f0; 
-                    border-radius: 50%; /* ★修正: cssの構文ミスを修正 */
+                    border-radius: 50%;
                     border: none;
                     font-size: 20px; 
                     color: #666;
@@ -232,12 +280,6 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
                     display: block; width: 100%; max-width: 300px; margin: 40px auto 0; padding: 15px; background: #1a1a1a; color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s, background 0.2s;
                 }
                 .submit-btn:hover { transform: scale(1.02); background: #333; }
-                /* ... scroll-indicator styles ... */
-                .scroll-indicator { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; flexDirection: column; align-items: center; color: #1a1a1a; fontFamily: 'Montserrat', sans-serif; }
-                .scroll-indicator span { fontSize: 0.75rem; letterSpacing: 0.2em; margin-bottom: 8px; fontWeight: 300; opacity: 0.8; }
-                .scroll-indicator .line { width: 1px; height: 50px; background: rgba(0,0,0,0.1); position: relative; overflow: hidden; }
-                .scroll-indicator .line::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #1a1a1a; transformOrigin: top; animation: scroll-line 2.0s cubic-bezier(0.77, 0, 0.175, 1) infinite; }
-                @keyframes scroll-line { 0% { transform: scaleY(0); transformOrigin: top; } 40% { transform: scaleY(1); transformOrigin: top; } 60% { transform: scaleY(1); transformOrigin: bottom; } 100% { transform: scaleY(0); transformOrigin: bottom; } }
             `}</style>
         </>
     );
