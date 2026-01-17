@@ -1,6 +1,6 @@
 import React, { Suspense, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { ScrollControls } from '@react-three/drei';
+import { ScrollControls, Loader } from '@react-three/drei'; // ★Loaderを追加
 import Experience from './components/3d/Experience';
 import Interface from './components/ui/Interface';
 import Navigation from './components/ui/Navigation';
@@ -42,35 +42,42 @@ class ErrorBoundary extends React.Component {
 function App() {
   const [atBottom, setAtBottom] = useState(false);
   const [showSim, setShowSim] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false); // ABOUTパネル開閉
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   return (
     <ErrorBoundary>
-      {/* 1. ナビゲーション (Canvasの外) */}
       <Navigation onAboutClick={() => setAboutOpen(true)} />
 
       <Canvas
         camera={{ position: [0, 0, 5], fov: 50 }}
         gl={{ antialias: true, alpha: false }}
-        dpr={[1, 2]}
+        dpr={1} /* ★重要: スマホの負荷を下げるため [1, 2] ではなく 1 に固定 */
       >
         <color attach="background" args={['#ececec']} />
         <fog attach="fog" args={['#ececec', 5, 40]} />
 
         <Suspense fallback={null}>
-          {/* ページ数を増やしてシミュレーター用のスペースを確保 */}
           <ScrollControls pages={9} damping={0.2}>
             <Experience setAtBottom={setAtBottom} setShowSim={setShowSim} />
-            {/* 2. アンカーポイント (HTMLオーバーレイ) */}
             <Overlay />
           </ScrollControls>
         </Suspense>
       </Canvas>
+
       <Interface
         atBottom={atBottom}
         showSim={showSim}
         aboutOpen={aboutOpen}
         setAboutOpen={setAboutOpen}
+      />
+
+      {/* ★追加: ロード画面を表示 */}
+      <Loader
+        containerStyles={{ background: '#ececec' }} // 背景色
+        innerStyles={{ background: '#333', width: '200px', height: '10px' }} // バーの枠
+        barStyles={{ background: '#1a1a1a', height: '10px' }} // バーの中身
+        dataStyles={{ color: '#333', fontSize: '1rem', fontWeight: 'bold' }} // 文字
+        dataInterpolation={(p) => `Loading ${p.toFixed(0)}%`} // 文字の内容
       />
     </ErrorBoundary>
   );
