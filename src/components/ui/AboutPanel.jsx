@@ -2,10 +2,8 @@ import React from 'react';
 import AboutMapSection from './AboutMapSection';
 
 const AboutPanel = ({ isOpen, onClose }) => {
-    // 開いていないときは何もレンダリングしない
     if (!isOpen) return null;
 
-    // 履歴データの配列
     const historyData = [
         { date: '1996年04月01日', event: '神戸市中央区にて有限会社トーク　設立' },
         { date: '1998年02月18日', event: '大阪地区制作強化の為　有限会社ラコンテ　設立' },
@@ -32,14 +30,13 @@ const AboutPanel = ({ isOpen, onClose }) => {
                 height: '100vh',
                 background: 'rgba(255, 255, 255, 0.98)',
                 zIndex: 2000,
-                overflowY: 'auto',      // スクロール有効化
+                overflowY: 'auto',
                 padding: '40px',
-                paddingTop: '120px',    // 文字被り防止の上余白
-                boxSizing: 'border-box', // パディングを含めて高さを計算（スクロール修正用）
-                pointerEvents: 'auto',   // 操作を有効化
+                paddingTop: '120px',
+                boxSizing: 'border-box',
+                pointerEvents: 'auto',
             }}
         >
-            {/* --- 閉じるボタン --- */}
             <button
                 onClick={onClose}
                 style={{
@@ -60,13 +57,12 @@ const AboutPanel = ({ isOpen, onClose }) => {
                     justifyContent: 'center',
                     transition: '0.2s',
                 }}
-                onMouseOver={(e) => e.currentTarget.style.background = '#e0e0e0'}
-                onMouseOut={(e) => e.currentTarget.style.background = '#f0f0f0'}
+                onMouseOver={(e) => { e.currentTarget.style.background = '#e0e0e0'; }}
+                onMouseOut={(e) => { e.currentTarget.style.background = '#f0f0f0'; }}
             >
                 ×
             </button>
 
-            {/* --- コンテンツ --- */}
             <div style={{ maxWidth: '800px', margin: '0 auto', fontFamily: '"Noto Sans JP", sans-serif', paddingBottom: '80px' }}>
                 <h2 style={{ fontSize: '2rem', borderBottom: '2px solid #333', paddingBottom: '1rem', marginBottom: '2rem', letterSpacing: '0.1em' }}>
                     ABOUT
@@ -92,12 +88,20 @@ const AboutPanel = ({ isOpen, onClose }) => {
                         <dd style={{ margin: 0 }}>藤山佳男</dd>
                     </dl>
 
-                    {/* 3D Map Section */}
-                    <AboutMapSection />
+                    {/* ★修正ポイント: ここでマップの高さを固定する！ */}
+                    <div style={{
+                        width: '100%',
+                        height: '400px', /* 高さを400pxに制限 */
+                        background: '#f9f9f9',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        margin: '30px 0',
+                        border: '1px solid #eee'
+                    }}>
+                        <AboutMapSection />
+                    </div>
 
-                    {/* Google Map Button */}
                     <div style={{ marginTop: '15px', marginBottom: '60px' }}>
-                        <img src="/map.webp" alt="Map" style={{ display: 'none' }} />
                         <a
                             href="https://www.google.com/maps/place/%E3%80%92550-0002+%E5%A4%A7%E9%98%AA%E5%BA%9C%E5%A4%A7%E9%98%AA%E5%B8%82%E8%A5%BF%E5%8C%BA%E6%B1%9F%E6%88%B8%E5%A0%80%EF%BC%91%E4%B8%81%E7%9B%AE%EF%BC%91%EF%BC%99%E2%88%92%EF%BC%91%EF%BC%90+%E4%B8%89%E5%85%B1%E8%82%A5%E5%BE%8C%E6%A9%8B%E3%83%93%E3%83%AB+5f/@34.689204,135.4950659,16z"
                             target="_blank"
@@ -112,14 +116,11 @@ const AboutPanel = ({ isOpen, onClose }) => {
                                 borderRadius: '4px',
                                 fontWeight: 'bold'
                             }}
-                            onMouseOver={(e) => e.currentTarget.style.background = '#333'}
-                            onMouseOut={(e) => e.currentTarget.style.background = '#1a1a1a'}
                         >
                             Google Mapで見る
                         </a>
                     </div>
 
-                    {/* --- HISTORY SECTION (新規追加) --- */}
                     <h3 style={{ fontSize: '1.5rem', borderBottom: '2px solid #333', paddingBottom: '10px', marginBottom: '30px', letterSpacing: '0.1em' }}>
                         HISTORY
                     </h3>
@@ -136,7 +137,6 @@ const AboutPanel = ({ isOpen, onClose }) => {
                             </li>
                         ))}
                     </ul>
-
                 </div>
             </div>
         </div>

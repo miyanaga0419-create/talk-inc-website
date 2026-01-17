@@ -5,22 +5,49 @@ import AboutPanel from './AboutPanel';
 const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
     // シミュレーターからコンタクトへの強制遷移フラグ
     const [forceContact, setForceContact] = useState(false);
-    // シミュレーターを閉じたかどうか
+
+    // ★修正1: 表示状態を「維持」するためのフラグ (Sticky State)
+    const [simActive, setSimActive] = useState(false);
+
+    // シミュレーターを「手動で」閉じたかどうかのフラグ
     const [simDismissed, setSimDismissed] = useState(false);
 
     const [simData, setSimData] = useState(null);
     const scrollUpAcc = useRef(0);
 
+    // ★修正2: シミュレーターの表示/非表示を制御するロジック
+    useEffect(() => {
+        // 条件: トリガー(showSim)がON ＆ 手動で閉じてない ＆ まだアクティブじゃない
+        // → シミュレーターを「アクティブ(表示維持)」にする
+        if (showSim && !simDismissed && !simActive) {
+            setSimActive(true);
+        }
+
+        // 条件: トリガーエリアから外れた(showSimがOFFになった)
+        // → 「閉じた履歴」をリセットする。
+        // これにより、一度上に戻ってからまた降りてきた時に、再度開くようになります。
+        if (!showSim) {
+            setSimDismissed(false);
+        }
+    }, [showSim, simDismissed, simActive]);
+
+    // ★修正3: 手動で閉じた時の処理
+    const handleCloseSim = () => {
+        setSimActive(false);     // 画面から消す
+        setSimDismissed(true);   // 「今は閉じた」と記録する（ゾーンから出るまで有効）
+    };
+
     // コンタクトへ飛ぶアクション
     const handleSimComplete = (data) => {
         if (data) setSimData(data);
-        setForceContact(true);
+        setSimActive(false);   // シミュレーターを閉じる
+        setForceContact(true); // コンタクトを開く
     };
 
-    // 実際のContact表示判定
-    const isContactVisible = atBottom || forceContact;
+    // 強制フラグ(forceContact)がある時だけ開く（スクロール連動なし）
+    const isContactVisible = forceContact;
 
-    // Contactを閉じるアクション (少し戻る)
+    // Contactを閉じるアクション
     const handleCloseContact = () => {
         setForceContact(false);
         window.dispatchEvent(new CustomEvent('scroll-back-contact'));
@@ -102,10 +129,11 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
             <AboutPanel isOpen={aboutOpen} onClose={() => setAboutOpen(false)} />
 
             {/* Scroll Indicator */}
+            {/* コンタクトが開いているか、シミュレーターが開いている(simActive)時は非表示 */}
             <div
                 className="scroll-indicator"
                 style={{
-                    opacity: isContactVisible ? 0 : 1,
+                    opacity: (isContactVisible || simActive || atBottom) ? 0 : 1,
                     pointerEvents: 'none',
                     transition: 'opacity 0.5s'
                 }}
@@ -115,10 +143,12 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
             </div>
 
             {/* Simulator Overlay */}
+            {/* ★修正: showSimではなく、制御された simActive を使用 */}
+            {/* これによりスクロールがズレても閉じなくなります */}
             <CostSimulator
-                visible={showSim && !isContactVisible && !simDismissed}
+                visible={simActive && !isContactVisible}
                 onComplete={handleSimComplete}
-                onClose={() => setSimDismissed(true)}
+                onClose={handleCloseSim}
             />
 
             <div

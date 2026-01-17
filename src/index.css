@@ -1,36 +1,3 @@
-/* src/index.css の canvas部分をこれに書き換え */
-
-canvas {
-  display: block;
-  width: 100vw !important;
-  /* 画面幅いっぱい */
-  height: 100vh !important;
-  /* 画面高さいっぱい */
-  position: fixed !important;
-  /* ★ここが重要：画面に強制固定 */
-  top: 0;
-  left: 0;
-  z-index: 0;
-  /* 一番後ろへ */
-  touch-action: none;
-  outline: none;
-  background: #ececec;
-  /* 読み込み前の背景色 */
-}
-
-/* ついでにルート要素も確実に固定 */
-#root {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  overflow: hidden;
-  padding: 0 !important;
-  /* 余白を強制削除 */
-  margin: 0 !important;
-}
-
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Noto+Sans+JP:wght@400;700&display=swap');
 
 /* --- リセット設定 --- */
@@ -57,6 +24,38 @@ body {
   top: 0;
   left: 0;
   overscroll-behavior: none;
+}
+
+/* --- アプリのルート要素（重要） --- */
+#root {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  padding: 0 !important;
+  /* 余白を強制削除 */
+  margin: 0 !important;
+}
+
+/* --- 3Dキャンバスの設定 --- */
+canvas {
+  display: block;
+  width: 100vw !important;
+  /* 画面幅いっぱい */
+  height: 100vh !important;
+  /* 画面高さいっぱい */
+  position: fixed !important;
+  /* ★ここが重要：画面に強制固定 */
+  top: 0;
+  left: 0;
+  z-index: 0;
+  /* 一番後ろへ */
+  touch-action: none;
+  outline: none;
+  background: #ececec;
+  /* 読み込み前の背景色 */
 }
 
 /* --- UIレイヤー（文字などの表示場所） --- */

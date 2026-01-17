@@ -1,43 +1,39 @@
 import React, { useState, useRef } from 'react';
 import { Text, RoundedBox, useScroll, useVideoTexture } from '@react-three/drei';
 import { useThree, useFrame } from '@react-three/fiber';
-import WebBrowser from './WebBrowser'; // Import
+import WebBrowser from './WebBrowser';
 
 const Section = ({ z, children }) => {
     return <group position={[0, 0, z]}>{children}</group>;
 };
 
-// --- 動画背景コンポーネント (全画面対応版) ---
+// --- 動画背景コンポーネント (全画面対応 & スマホ安全版) ---
 const MovieBackground = () => {
     const { viewport } = useThree();
 
+    // ★スマホ対応設定: unsuspend を削除し、playsInline を追加
     const texture = useVideoTexture("/movie.mp4", {
-        // unsuspend行を削除しました
+        // unsuspend: 'canplay', // ← 削除 (重要)
         muted: true,
         loop: true,
         start: true,
-        playsInline: true,
+        playsInline: true, // ← 追加 (重要)
         crossOrigin: "Anonymous"
     });
 
     // 画面いっぱいに表示するための計算
-    // Z=-5 に配置する場合、カメラ(Z=5)からの距離は10
-    // viewport.width/height は Z=0 (距離5) でのサイズなので、2倍すれば Z=-5 でピッタリになる
+    // Z=-5 に配置。カメラ(Z=5)からの距離は10。
     const scaleFactor = 2.0;
 
-    // さらにアスペクト比を維持して「隙間なく埋める(cover)」ための補正
-    // 動画のアスペクト比(16:9 = 1.77) と 画面のアスペクト比を比較
     const screenAspect = viewport.width / viewport.height;
     const videoAspect = 16 / 9;
 
     let finalWidth, finalHeight;
 
     if (screenAspect > videoAspect) {
-        // 画面の方が横長 → 横幅に合わせて縦をはみ出させる
         finalWidth = viewport.width * scaleFactor;
         finalHeight = finalWidth / videoAspect;
     } else {
-        // 画面の方が縦長 → 縦幅に合わせて横をはみ出させる
         finalHeight = viewport.height * scaleFactor;
         finalWidth = finalHeight * videoAspect;
     }
@@ -120,7 +116,6 @@ const ResponsiveText = ({ children, type = "body", align = "center", ...props })
             anchorX={align}
             anchorY="middle"
             color={currentStyle.color}
-            // props受け渡し
             {...props}
         >
             {children}
@@ -180,10 +175,10 @@ const TextSection = () => {
 
             {/* --- MOVIE SECTION --- */}
             <Section z={100}>
-                {/* 1. 背景動画: 画面サイズに合わせて拡大・全画面表示 */}
+                {/* 背景動画: 画面サイズに合わせて拡大・全画面表示 */}
                 <MovieBackground />
 
-                {/* 2. 文字: 手前(z=2)に配置 + 白文字 + カリング無効化 */}
+                {/* 文字: 手前に配置 + 白文字 + カリング無効化 */}
                 <ResponsiveText
                     type="title"
                     position={[0, isMobile ? 1.5 : 1.5, 2]}
