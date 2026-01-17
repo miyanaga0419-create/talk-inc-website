@@ -7,7 +7,7 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
     const [simDismissed, setSimDismissed] = useState(false);
     const [simData, setSimData] = useState(null);
     const scrollUpAcc = useRef(0);
-    const [simActive, setSimActive] = useState(false); // 表示維持用フラグ
+    const [simActive, setSimActive] = useState(false);
 
     // --- シミュレーター制御 ---
     useEffect(() => {
@@ -31,7 +31,6 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
     };
 
     // --- コンタクトパネル制御 ---
-    // atBottom(スクロール)では開かず、フラグがある時だけ開く
     const isContactVisible = forceContact;
 
     const handleCloseContact = () => {
@@ -40,7 +39,6 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
         scrollUpAcc.current = 0;
     };
 
-    // パネル内でのホイール操作（閉じる補助）
     const handlePanelWheel = (e) => {
         if (e.currentTarget.scrollTop <= 5 && e.deltaY < 0) {
             scrollUpAcc.current += Math.abs(e.deltaY);
@@ -116,11 +114,11 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
                     transition: 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
             >
-                {/* 閉じるボタン (右上) */}
+                {/* 閉じるボタン: デザインをCostSimulatorに統一 */}
                 <button
                     className="contact-close-btn"
                     onClick={handleCloseContact}
-                    style={{ opacity: isContactVisible ? 1 : 0, transition: 'opacity 0.5s 0.3s' }} // パネルが開いてから表示
+                    style={{ opacity: isContactVisible ? 1 : 0, transition: 'opacity 0.5s 0.3s' }}
                 >
                     ×
                 </button>
@@ -181,15 +179,15 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
 
             <style>{`
                 .contact-panel {
-                    position: fixed; /* absolute -> fixed に変更 */
-                    top: 0;          /* 上端に合わせる */
+                    position: fixed;
+                    top: 0;
                     left: 0;
                     width: 100%;
-                    height: 100vh !important; /* 全画面を覆う */
+                    height: 100vh !important;
                     background: rgba(255,255,255,0.98) !important;
                     backdrop-filter: blur(10px);
                     padding: 60px 20px;
-                    padding-top: 120px; /* ナビゲーションやロゴを避ける余白 */
+                    padding-top: 120px;
                     box-sizing: border-box;
                     z-index: 60;
                     display: flex;
@@ -201,21 +199,24 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
                 }
                 .contact-close-btn {
                     position: absolute;
-                    top: 20px;
-                    right: 20px;
-                    width: 40px;
+                    top: 20px; 
+                    left: 20px; 
+                    width: 40px; 
                     height: 40px;
-                    background: #f0f0f0;
+                    background: #f0f0f0; 
+                    border-radius: 50%; /* ★修正: cssの構文ミスを修正 */
                     border: none;
-                    border-radius: 50%;
-                    font-size: 20px;
+                    font-size: 20px; 
                     color: #666;
                     cursor: pointer;
-                    display: flex;
-                    align-items: center;
+                    display: flex; 
+                    align-items: center; 
                     justify-content: center;
-                    z-index: 70;
+                    z-index: 100;
+                    transition: 0.2s;
                 }
+                .contact-close-btn:hover { background: #e0e0e0; color: #333; }
+                
                 .contact-content { width: 100%; max-width: 800px; margin: 0 auto; }
                 .contact-form { width: 100%; text-align: left; }
                 .form-row { display: flex; gap: 20px; margin-bottom: 20px; }
@@ -231,7 +232,7 @@ const Interface = ({ atBottom, showSim, aboutOpen, setAboutOpen }) => {
                     display: block; width: 100%; max-width: 300px; margin: 40px auto 0; padding: 15px; background: #1a1a1a; color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s, background 0.2s;
                 }
                 .submit-btn:hover { transform: scale(1.02); background: #333; }
-                /* ... scroll-indicator styles (unchanged) ... */
+                /* ... scroll-indicator styles ... */
                 .scroll-indicator { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; flexDirection: column; align-items: center; color: #1a1a1a; fontFamily: 'Montserrat', sans-serif; }
                 .scroll-indicator span { fontSize: 0.75rem; letterSpacing: 0.2em; margin-bottom: 8px; fontWeight: 300; opacity: 0.8; }
                 .scroll-indicator .line { width: 1px; height: 50px; background: rgba(0,0,0,0.1); position: relative; overflow: hidden; }

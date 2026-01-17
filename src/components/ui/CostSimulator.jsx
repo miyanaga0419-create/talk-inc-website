@@ -52,8 +52,7 @@ const CostSimulator = ({ visible, onComplete, onClose }) => {
     // --- 各ステップの描画 ---
     const renderStep0 = () => (
         <div style={animStyle} className="sim-screen">
-            {/* ★修正: 指定位置で改行 */}
-            <h3 style={{ fontSize: '1.4rem', marginBottom: '10px', lineHeight: '1.5' }}>
+            <h3 className="sim-title">
                 さあ、新しいプロジェクトを<br />始めましょう。
             </h3>
             <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '30px', textAlign: 'center' }}>
@@ -77,7 +76,7 @@ const CostSimulator = ({ visible, onComplete, onClose }) => {
 
         return (
             <div style={animStyle} className="sim-screen">
-                <h3>サイズは？</h3>
+                <h3 className="sim-title">サイズは？</h3>
                 <ul className="sim-options">
                     {type === 'newspaper' ? (
                         <>
@@ -102,7 +101,7 @@ const CostSimulator = ({ visible, onComplete, onClose }) => {
         if (selections.type !== 'catalog') return renderResult();
         return (
             <div style={animStyle} className="sim-screen">
-                <h3>ページ数は？</h3>
+                <h3 className="sim-title">ページ数は？</h3>
                 <ul className="sim-options">
                     {[4, 8, 12, 16].map(p => <li key={p} onClick={() => handleSelect('pages', p)}>{p}ページ</li>)}
                     <li onClick={() => handleSelect('pages', 'other')}>その他</li>
@@ -115,7 +114,7 @@ const CostSimulator = ({ visible, onComplete, onClose }) => {
         const price = calculatePrice(selections);
         return (
             <div style={animStyle} className="sim-screen result">
-                <h3>概算お見積り</h3>
+                <h3 className="sim-title">概算お見積り</h3>
                 <div className="price-display">
                     <span className="amount">{price ? price.toLocaleString() : '---'}</span>
                     <span className="unit">円〜</span>
@@ -129,9 +128,10 @@ const CostSimulator = ({ visible, onComplete, onClose }) => {
     return (
         <div className="simulator-container">
             <div className="simulator-card">
-                {/* 閉じるボタン */}
+                {/* 閉じるボタン: 左上、元のグレーデザイン */}
                 <button className="sim-close-btn" onClick={onClose}>×</button>
 
+                {/* 戻るボタン: 右上に配置 */}
                 {step > 0 && (
                     <button className="back-btn" onClick={handleBack}>＜ 戻る</button>
                 )}
@@ -162,27 +162,34 @@ const CostSimulator = ({ visible, onComplete, onClose }) => {
                     position: relative;
                     min-height: 400px;
                 }
+                
+                /* 閉じるボタン: 左上、グレー丸、黒文字 */
                 .sim-close-btn {
                     position: absolute; 
-                    top: 20px; right: 20px; /* 右上 */
+                    top: 20px; left: 20px; /* 左上 */
                     width: 40px; height: 40px;
-                    background: #f0f0f0; border-radius: 50%;
+                    background: #f0f0f0; 
+                    border-radius: 50%;
                     border: none;
-                    font-size: 20px; color: #666;
+                    font-size: 20px; color: #666; /* 文字色: グレー */
                     cursor: pointer;
                     display: flex; align-items: center; justify-content: center;
                     transition: 0.2s; z-index: 10;
                 }
                 .sim-close-btn:hover { background: #e0e0e0; color: #333; }
                 
+                /* 戻るボタン: 右上 */
                 .back-btn {
-                    position: absolute; top: 25px; left: 20px;
+                    position: absolute; top: 25px; right: 20px; /* 右上 */
                     background: none; border: none; font-weight: bold; cursor: pointer; color: #999;
+                    z-index: 10;
                 }
-                .sim-screen h3 {
+
+                .sim-title {
                     margin-top: 10px; margin-bottom: 20px; text-align: center;
-                    font-family: sans-serif; font-weight: 700;
+                    font-family: sans-serif; font-weight: 700; font-size: 1.4rem;
                 }
+                
                 .sim-options { list-style: none; padding: 0; }
                 .sim-options li {
                     padding: 15px; border-bottom: 1px solid #eee;
@@ -202,6 +209,18 @@ const CostSimulator = ({ visible, onComplete, onClose }) => {
                 
                 @keyframes slideInRight { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
                 @keyframes slideInLeft { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+                /* ★スマホ対応: 文字被り防止の徹底 */
+                @media (max-width: 600px) {
+                    .simulator-card {
+                        padding: 30px 20px;
+                    }
+                    .sim-title {
+                        /* ボタンと被らないよう、余白を大きく確保(70px) */
+                        margin-top: 70px;
+                        font-size: 1.2rem;
+                    }
+                }
             `}</style>
         </div>
     );
