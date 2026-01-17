@@ -1,38 +1,48 @@
-import React from 'react';
+import React, { Suspense, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-
-// 非常にシンプルな回転する箱
-const SpinningBox = () => {
-  return (
-    <mesh rotation={[0.5, 0.5, 0]}>
-      <boxGeometry args={[2, 2, 2]} />
-      <meshNormalMaterial />
-    </mesh>
-  );
-};
+import { ScrollControls, Loader } from '@react-three/drei';
+import Experience from './components/3d/Experience';
+import Interface from './components/ui/Interface';
+import Navigation from './components/ui/Navigation';
+import { Overlay } from './components/ui/Overlay';
 
 function App() {
+  const [atBottom, setAtBottom] = useState(false);
+  const [showSim, setShowSim] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
+
   return (
-    // 外枠を強制的に画面いっぱいに広げるスタイル
-    <div style={{ width: '100vw', height: '100vh', background: '#333', position: 'fixed', top: 0, left: 0 }}>
+    <>
+      <Navigation onAboutClick={() => setAboutOpen(true)} />
 
-      {/* 3Dキャンバス */}
-      <Canvas
-        camera={{ position: [0, 0, 5] }}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <color attach="background" args={['#000000']} />
-        <ambientLight intensity={0.5} />
-        <SpinningBox />
-      </Canvas>
+      {/* スマホ対応: position: fixed で画面に固定 */}
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0 }}>
+        <Canvas
+          camera={{ position: [0, 0, 5], fov: 50 }}
+          gl={{ antialias: true, alpha: false }}
+          dpr={1} /* ★重要: スマホのクラッシュ防止のため画質を1に固定 */
+        >
+          <color attach="background" args={['#ececec']} />
+          <fog attach="fog" args={['#ececec', 5, 40]} />
 
-      {/* テスト用UI */}
-      <div style={{ position: 'absolute', top: 20, left: 20, color: 'white', zIndex: 9999 }}>
-        <h1>MOBILE TEST</h1>
-        <p>If you see a colorful box, WebGL is working.</p>
+          <Suspense fallback={null}>
+            <ScrollControls pages={9} damping={0.2}>
+              <Experience setAtBottom={setAtBottom} setShowSim={setShowSim} />
+              <Overlay />
+            </ScrollControls>
+          </Suspense>
+        </Canvas>
       </div>
 
-    </div>
+      <Interface
+        atBottom={atBottom}
+        showSim={showSim}
+        aboutOpen={aboutOpen}
+        setAboutOpen={setAboutOpen}
+      />
+
+      <Loader />
+    </>
   );
 }
 
